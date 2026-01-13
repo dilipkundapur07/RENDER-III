@@ -8,7 +8,7 @@ from flask import Flask
 from threading import Thread
 
 # --- 🔐 HIDDEN TOKEN ---
-# Set this in Render's "Environment Variables" as BOT_TOKEN
+# Ensure you set 'BOT_TOKEN' in Render's Environment Variables
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 # --- ⚙️ NETWORK CONFIGURATION ---
@@ -26,7 +26,7 @@ def home():
     return "TikTok Bot is Running!"
 
 def run_http():
-    # Render assigns a port automatically
+    # Render assigns a port automatically via environment variables
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
@@ -37,7 +37,7 @@ def keep_alive():
 # ------------------------------------------
 
 def download_video(url, unique_id):
-    """Downloads TikTok video using cookies.txt and FFmpeg."""
+    """Downloads TikTok video using yt-dlp with your cookies.txt."""
     filename = f"tiktok_{unique_id}.mp4"
     cookie_path = 'cookies.txt'
     
@@ -67,6 +67,7 @@ def download_video(url, unique_id):
         return None
 
 def extract_clean_link(text):
+    """Extracts TikTok URLs."""
     pattern = r'(https?://(?:www\.|vm\.|vt\.)?tiktok\.com/[^\s]+)'
     match = re.search(pattern, text)
     return match.group(1) if match else None
@@ -85,7 +86,8 @@ def handle_message(message):
 
         try:
             bot.delete_message(chat_id, message.message_id)
-           bot.send_message(chat_id, f'🔗 <a href="{clean_url}">link</a>', parse_mode='HTML', disable_web_page_preview=True)
+            # --- 🔗 UPDATED LINK LINE ---
+            bot.send_message(chat_id, f'🔗 <a href="{clean_url}">link</a>', parse_mode='HTML', disable_web_page_preview=True)
         except: pass 
         
         status_msg = bot.send_message(chat_id, "🧃")
@@ -101,16 +103,17 @@ def handle_message(message):
                     duration=video_data.get('duration'), supports_streaming=True
                 )
             
-            # --- 〰️ THE MISSING LINE 〰️ ---
+            # --- 〰️ SEPARATOR LINE ---
             bot.send_message(chat_id, "〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️")
             
-            bot.delete_message(chat_id, status_msg.message_id)
+            try: bot.delete_message(chat_id, status_msg.message_id)
+            except: pass
+            
             os.remove(video_data['path'])
         else:
             bot.edit_message_text("❌ Download failed.", chat_id, status_msg.message_id)
 
 if __name__ == "__main__":
     keep_alive()
-    print("Bot is starting on Render...")
-
+    print("TikTok Bot is starting on Render... ⚡")
     bot.infinity_polling(skip_pending=True)
