@@ -87,7 +87,7 @@ def handle_message(message):
         try:
             bot.delete_message(chat_id, message.message_id)
             # --- 🔗 UPDATED LINK LINE ---
-            bot.send_message(chat_id, f'🔗 <a href="{clean_url}">link</a>', parse_mode='HTML', disable_web_page_preview=True)
+            bot.send_message(chat_id, f'🔗 <a href="{clean_url}">LINK</a>', parse_mode='HTML', disable_web_page_preview=True)
         except: pass 
         
         status_msg = bot.send_message(chat_id, "🧃")
@@ -117,3 +117,4 @@ if __name__ == "__main__":
     keep_alive()
     print("TikTok Bot is starting on Render... ⚡")
     bot.infinity_polling(skip_pending=True)
+
